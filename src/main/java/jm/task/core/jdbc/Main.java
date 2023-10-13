@@ -1,22 +1,17 @@
 package jm.task.core.jdbc;
 
-import jm.task.core.jdbc.util.Util;
-
-import java.sql.Connection;
-import java.sql.SQLException;
+import jm.task.core.jdbc.service.UserService;
+import jm.task.core.jdbc.service.UserServiceImpl;
 
 public class Main {
+
+    private static final UserService USER_SERVICE = new UserServiceImpl();
+
     public static void main(String[] args) {
         // реализуйте алгоритм здесь
 
-        try {
-            Connection connection = new Util().getConnection();
-            
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 //        Создание таблицы User(ов)
+        USER_SERVICE.createUsersTable();
 
 //        Добавление 4 User(ов) в таблицу с данными на свой выбор.
 //        После каждого добавления должен быть вывод в консоль ( User с именем – name добавлен в базу данных).
