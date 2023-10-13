@@ -7,23 +7,23 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Optional;
 
 public class UserDaoJDBCImpl implements UserDao {
 
     private static final String TABLE_NAME = "users";
 
+    private static final String COLUMN_NAME = "name";
+    private static final String COLUMN_LASTNAME = "lastName";
+    private static final String COLUMN_AGE = "age";
+
     private static final String CREATE_TABLE =
-            "CREATE TABLE IF NOT EXISTS " + TABLE_NAME +
-                    """
-                                                
-                            (
-                                id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                name VARCHAR(30),
-                                lastName VARCHAR(30),
-                                age TINYINT
-                            );
-                            """;
+            "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + '\n' +
+                    "(\n" +
+                    "id BIGINT PRIMARY KEY AUTO_INCREMENT,\n" +
+                    COLUMN_NAME + " VARCHAR(30),\n" +
+                    COLUMN_LASTNAME + " VARCHAR(30),\n" +
+                    COLUMN_AGE + " TINYINT\n" +
+                    ");";
 
     private Connection connection;
 
@@ -72,7 +72,30 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-
+        String SAVE_USER = String.format("INSERT %s(%s, %s, %s)\nVALUES ('%s', '%s', %d);",
+                TABLE_NAME, COLUMN_NAME, COLUMN_LASTNAME, COLUMN_AGE, name, lastName, age);
+        Statement statement = getStatement();
+        if (statement != null) {
+            try {
+                if (statement.executeUpdate(SAVE_USER) == 1) {
+                    System.out.printf("User с именем – %s добавлен в базу данных%n", name);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -89,28 +112,4 @@ public class UserDaoJDBCImpl implements UserDao {
     public void cleanUsersTable() {
 
     }
-
-//    public void createUsersTable() {
-//
-//    }
-//
-//    public void dropUsersTable() {
-//
-//    }
-//
-//    public void saveUser(String name, String lastName, byte age) {
-//
-//    }
-//
-//    public void removeUserById(long id) {
-//
-//    }
-//
-//    public List<User> getAllUsers() {
-//        return null;
-//    }
-//
-//    public void cleanUsersTable() {
-//
-//    }
 }
