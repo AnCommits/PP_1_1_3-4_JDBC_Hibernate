@@ -14,7 +14,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public void dropUsersTable() {
-
+        USER_DAO.dropUsersTable();
     }
 
     public void saveUser(String name, String lastName, byte age) {
@@ -22,14 +22,14 @@ public class UserServiceImpl implements UserService {
     }
 
     public void removeUserById(long id) {
-
+        USER_DAO.removeUserById(id);;
     }
 
     public List<User> getAllUsers() {
-        return null;
+        return USER_DAO.getAllUsers();
     }
 
     public void cleanUsersTable() {
-
+        USER_DAO.cleanUsersTable();
     }
 }

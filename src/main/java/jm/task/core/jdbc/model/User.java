@@ -58,4 +58,9 @@ public class User {
     public void setAge(Byte age) {
         this.age = age;
     }
+
+    @Override
+    public String toString() {
+        return String.format("user %d - %s %s, %d years", getId(), getName(), getLastName(), getAge());
+    }
 }
