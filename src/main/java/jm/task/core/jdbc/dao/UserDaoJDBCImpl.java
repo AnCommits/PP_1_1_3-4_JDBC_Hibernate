@@ -49,7 +49,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-
+        final String DELETE_TABLE = String.format("DROP TABLE IF EXISTS %s;", TABLE_NAME);
+        execute(DELETE_TABLE);
     }
 
     @Override
@@ -63,7 +64,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-
+        final String REMOVE_BY_ID = String.format("DELETE FROM %s WHERE id = %d;", TABLE_NAME, id);
+        execute(REMOVE_BY_ID);
     }
 
     @Override
