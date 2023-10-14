@@ -24,6 +24,16 @@ public class UserDaoJDBCImpl implements UserDao {
     public UserDaoJDBCImpl() {
     }
 
+    private static int execute(String query) {
+        try (Connection connection = UTIL.getConnection();
+             Statement statement = connection.createStatement()) {
+            return statement.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     @Override
     public void createUsersTable() {
         final String CREATE_TABLE =
@@ -34,13 +44,7 @@ public class UserDaoJDBCImpl implements UserDao {
                         COLUMN_LASTNAME + " VARCHAR(30)," +
                         COLUMN_AGE + " TINYINT" +
                         ");";
-
-        try (Connection connection = UTIL.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.executeUpdate(CREATE_TABLE);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        execute(CREATE_TABLE);
     }
 
     @Override
@@ -52,14 +56,8 @@ public class UserDaoJDBCImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
         final String SAVE_USER = String.format("INSERT %s(%s, %s, %s) VALUES ('%s', '%s', %d);",
                 TABLE_NAME, COLUMN_NAME, COLUMN_LASTNAME, COLUMN_AGE, name, lastName, age);
-
-        try (Connection connection = UTIL.getConnection();
-             Statement statement = connection.createStatement()) {
-            if (statement.executeUpdate(SAVE_USER) == 1) {
-                System.out.printf("User с именем – %s добавлен в базу данных%n", name);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (execute(SAVE_USER) == 1) {
+            System.out.printf("User с именем – %s добавлен в базу данных%n", name);
         }
     }
 
@@ -93,12 +91,6 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         final String DELETE_ALL_ENTRIES = String.format("DELETE FROM %s;", TABLE_NAME);
-
-        try (Connection connection = UTIL.getConnection();
-        Statement statement = connection.createStatement()) {
-            statement.executeUpdate(DELETE_ALL_ENTRIES);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        execute(DELETE_ALL_ENTRIES);
     }
 }
