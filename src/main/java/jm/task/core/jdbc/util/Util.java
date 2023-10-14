@@ -1,17 +1,29 @@
 package jm.task.core.jdbc.util;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class Util {
     // реализуйте настройку соеденения с БД
 
-    private static final String URL = "jdbc:mysql://localhost:3306/task114";
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "pass";
+    private static final String PATH_TO_PROPERTIES = "src/main/resources/database.properties";
 
-    public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+    public Connection getConnection() {
+        try (InputStream fis = new FileInputStream(PATH_TO_PROPERTIES)) {
+            Properties properties = new Properties();
+            properties.load(fis);
+            String url = properties.getProperty("url");
+            String username = properties.getProperty("username");
+            String password = properties.getProperty("password");
+            return DriverManager.getConnection(url, username, password);
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
