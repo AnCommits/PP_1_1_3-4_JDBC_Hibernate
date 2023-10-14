@@ -92,6 +92,13 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
+        final String DELETE_ALL_ENTRIES = String.format("DELETE FROM %s;", TABLE_NAME);
 
+        try (Connection connection = UTIL.getConnection();
+        Statement statement = connection.createStatement()) {
+            statement.executeUpdate(DELETE_ALL_ENTRIES);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -32,6 +32,8 @@ public class Main {
 
 //        Очистка таблицы User(ов)
 
+        USER_SERVICE.cleanUsersTable();
+
 //        Удаление таблицы
     }
 }
