@@ -11,19 +11,30 @@ import java.util.Properties;
 public class Util {
     // реализуйте настройку соеденения с БД
 
-    private static final String PATH_TO_PROPERTIES = "src/main/resources/database.properties";
+    private static final String PATH_TO_DB_PROPERTIES = "src/main/resources/database.properties";
 
-    public Connection getConnection() {
-        try (InputStream fis = new FileInputStream(PATH_TO_PROPERTIES)) {
+    private static Connection connection;
+
+    public static Connection getConnection() {
+        try (InputStream inputStream = new FileInputStream(PATH_TO_DB_PROPERTIES)) {
             Properties properties = new Properties();
-            properties.load(fis);
+            properties.load(inputStream);
             String url = properties.getProperty("url");
             String username = properties.getProperty("username");
             String password = properties.getProperty("password");
-            return DriverManager.getConnection(url, username, password);
+            connection = DriverManager.getConnection(url, username, password);
+            return connection;
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void closeConnection() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

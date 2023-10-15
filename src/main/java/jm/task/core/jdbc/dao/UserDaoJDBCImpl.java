@@ -3,10 +3,7 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,19 +16,25 @@ public class UserDaoJDBCImpl implements UserDao {
     private static final String COLUMN_LASTNAME = "lastName";
     private static final String COLUMN_AGE = "age";
 
-    private static final Util UTIL = new Util();
+    private static Connection connection = Util.getConnection();
 
     public UserDaoJDBCImpl() {
     }
 
-    private static int execute(String query) {
-        try (Connection connection = UTIL.getConnection();
-             Statement statement = connection.createStatement()) {
-            return statement.executeUpdate(query);
+    private void execute(String sql) {
+        try {
+            connection.setAutoCommit(false);
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            connection.commit();
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
         }
-        return 0;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class UserDaoJDBCImpl implements UserDao {
                         COLUMN_NAME + " VARCHAR(30)," +
                         COLUMN_LASTNAME + " VARCHAR(30)," +
                         COLUMN_AGE + " TINYINT" +
-                        ");";
+                        ")";
         execute(CREATE_TABLE);
     }
 
@@ -55,10 +58,25 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        final String SAVE_USER = String.format("INSERT %s(%s, %s, %s) VALUES ('%s', '%s', %d);",
-                TABLE_NAME, COLUMN_NAME, COLUMN_LASTNAME, COLUMN_AGE, name, lastName, age);
-        if (execute(SAVE_USER) == 1) {
-            System.out.printf("User с именем – %s добавлен в базу данных%n", name);
+        final String SAVE_USER = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)",
+                TABLE_NAME, COLUMN_NAME, COLUMN_LASTNAME, COLUMN_AGE);
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = connection.prepareStatement(SAVE_USER);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setInt(3, age);
+            if (preparedStatement.executeUpdate() == 1) {
+                System.out.printf("User с именем – %s добавлен в базу данных%n", name);
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
         }
     }
 
@@ -66,6 +84,19 @@ public class UserDaoJDBCImpl implements UserDao {
     public void removeUserById(long id) {
         final String REMOVE_BY_ID = String.format("DELETE FROM %s WHERE id = %d;", TABLE_NAME, id);
         execute(REMOVE_BY_ID);
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_BY_ID);
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -74,8 +105,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
         List<User> listOfAllUsers = new ArrayList<>();
 
-        try (Connection connection = UTIL.getConnection();
-             Statement statement = connection.createStatement()) {
+        try {
+            Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(GET_ALL_USERS);
             while (resultSet.next()) {
                 User user = new User(resultSet.getString(COLUMN_NAME),
