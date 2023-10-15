@@ -3,10 +3,7 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,10 +21,18 @@ public class UserDaoJDBCImpl implements UserDao {
     public UserDaoJDBCImpl() {
     }
 
-    private static int execute(String query) {
+    private static int execute(String query, Object... objects) {
         try (Connection connection = UTIL.getConnection();
-             Statement statement = connection.createStatement()) {
-            return statement.executeUpdate(query);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            for (int i = 0; i < objects.length; i++) {
+                if (objects[i] instanceof String) {
+                    preparedStatement.setString(i + 1, (String) objects[i]);
+                }
+                if (objects[i] instanceof Byte) {
+                    preparedStatement.setInt(i + 1, (byte) objects[i]);
+                }
+            }
+            return preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -55,9 +60,9 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        final String SAVE_USER = String.format("INSERT %s(%s, %s, %s) VALUES ('%s', '%s', %d);",
-                TABLE_NAME, COLUMN_NAME, COLUMN_LASTNAME, COLUMN_AGE, name, lastName, age);
-        if (execute(SAVE_USER) == 1) {
+        final String SAVE_USER = String.format("INSERT %s(%s, %s, %s) VALUES (?, ?, ?)",
+                TABLE_NAME, COLUMN_NAME, COLUMN_LASTNAME, COLUMN_AGE);
+        if (execute(SAVE_USER, name, lastName, age) == 1) {
             System.out.printf("User с именем – %s добавлен в базу данных%n", name);
         }
     }
