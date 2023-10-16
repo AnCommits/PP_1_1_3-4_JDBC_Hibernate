@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
-    // реализуйте настройку соеденения с БД
+    // реализуйте настройку соединения с БД
 
     private static final String PATH_TO_DB_PROPERTIES = "src/main/resources/database.properties";
 
