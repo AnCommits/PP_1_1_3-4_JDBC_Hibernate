@@ -26,7 +26,6 @@ public class UserDaoJDBCImpl implements UserDao {
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
             statement.executeUpdate(sql);
-            connection.commit();
         } catch (SQLException e) {
             try {
                 connection.rollback();
@@ -34,6 +33,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 ex.printStackTrace();
             }
             e.printStackTrace();
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -69,7 +74,6 @@ public class UserDaoJDBCImpl implements UserDao {
             if (preparedStatement.executeUpdate() == 1) {
                 System.out.printf("User с именем – %s добавлен в базу данных%n", name);
             }
-            connection.commit();
         } catch (SQLException e) {
             try {
                 connection.rollback();
@@ -77,6 +81,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 ex.printStackTrace();
             }
             e.printStackTrace();
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -88,7 +98,6 @@ public class UserDaoJDBCImpl implements UserDao {
             connection.setAutoCommit(false);
             PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_BY_ID);
             preparedStatement.executeUpdate();
-            connection.commit();
         } catch (SQLException e) {
             try {
                 connection.rollback();
@@ -96,6 +105,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 ex.printStackTrace();
             }
             e.printStackTrace();
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -9,30 +9,30 @@ import java.util.List;
 
 public class Main {
 
-    private static final UserService USER_SERVICE = new UserServiceImpl();
+    private static final UserService userService = new UserServiceImpl();
 
     public static void main(String[] args) {
         // реализуйте алгоритм здесь
 
 //        Создание таблицы User(ов)
-        USER_SERVICE.createUsersTable();
+        userService.createUsersTable();
 
 //        Добавление 4 User(ов) в таблицу с данными на свой выбор.
 //        После каждого добавления должен быть вывод в консоль ( User с именем – name добавлен в базу данных).
-        USER_SERVICE.saveUser("Petr", "Romanov", (byte) 50);
-        USER_SERVICE.saveUser("Bill", "Gates", (byte) 55);
-        USER_SERVICE.saveUser("Misha", "Lomonosov", (byte) 15);
-        USER_SERVICE.saveUser("Casual", "Passerby", (byte) 100);
+        userService.saveUser("Petr", "Romanov", (byte) 50);
+        userService.saveUser("Bill", "Gates", (byte) 55);
+        userService.saveUser("Misha", "Lomonosov", (byte) 15);
+        userService.saveUser("Casual", "Passerby", (byte) 100);
 
 //        Получение всех User из базы и вывод в консоль ( должен быть переопределен toString в классе User)
-        List<User> allUsers = USER_SERVICE.getAllUsers();
+        List<User> allUsers = userService.getAllUsers();
         allUsers.forEach(System.out::println);
 
 //        Очистка таблицы User(ов)
-        USER_SERVICE.cleanUsersTable();
+        userService.cleanUsersTable();
 
 //        Удаление таблицы
-        USER_SERVICE.dropUsersTable();
+        userService.dropUsersTable();
 
         Util.closeConnection();
     }
