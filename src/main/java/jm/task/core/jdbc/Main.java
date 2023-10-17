@@ -12,12 +12,6 @@ public class Main {
     private static final UserService userService = new UserServiceImpl();
 
     public static void main(String[] args) {
-
-        userService.saveUser("Casual", "Passerby", (byte) 100);
-
-        Util.closeSessionFactory();
-        System.exit(555);
-
         // реализуйте алгоритм здесь
 
 //        Создание таблицы User(ов)

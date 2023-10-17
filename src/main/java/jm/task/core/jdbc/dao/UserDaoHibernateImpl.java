@@ -32,14 +32,20 @@ public class UserDaoHibernateImpl implements UserDao {
                         AGE + " TINYINT" +
                         ")";
 
-        Session session = Util.getSessionFactory().openSession();
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
 
-        Transaction transaction = session.beginTransaction();
-//        Query<User> query =
-        session.createSQLQuery(CREATE_TABLE).addEntity(User.class);
-        transaction.commit();
+            session.createNativeQuery(CREATE_TABLE, User.class);
+//            session.createSQLQuery(CREATE_TABLE).addEntity(User.class);
 
-        session.close();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -89,6 +95,22 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
+        final String DELETE_ALL_ENTRIES = String.format("DELETE FROM %s;", TABLE_NAME);
+
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            session.createNativeQuery(DELETE_ALL_ENTRIES);
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+
 
     }
 }
