@@ -15,8 +15,6 @@ import java.util.Properties;
 public class Util {
     // реализуйте настройку соеденения с БД
 
-    private static final String PATH_TO_HIBERNATE_PROPERTIES = "src/main/resources/hibernate.properties";
-
     private static final String PATH_TO_DB_PROPERTIES = "src/main/resources/database.properties";
 
     private static SessionFactory sessionFactory;
@@ -25,11 +23,8 @@ public class Util {
 
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
-            try (InputStream inputStream = new FileInputStream(PATH_TO_HIBERNATE_PROPERTIES)) {
-                Properties properties = new Properties();
-                properties.load(inputStream);
+            try {
                 sessionFactory = new Configuration()
-                        .setProperties(properties)
                         .addAnnotatedClass(User.class)
                         .buildSessionFactory();
             } catch (Exception e) {
