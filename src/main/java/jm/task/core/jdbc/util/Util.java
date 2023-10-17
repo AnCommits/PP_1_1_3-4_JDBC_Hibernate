@@ -1,5 +1,9 @@
 package jm.task.core.jdbc.util;
 
+import jm.task.core.jdbc.model.User;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,11 +13,37 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
-    // реализуйте настройку соединения с БД
+    // реализуйте настройку соеденения с БД
+
+    private static final String PATH_TO_HIBERNATE_PROPERTIES = "src/main/resources/hibernate.properties";
 
     private static final String PATH_TO_DB_PROPERTIES = "src/main/resources/database.properties";
 
+    private static SessionFactory sessionFactory;
+
     private static Connection connection;
+
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            try (InputStream inputStream = new FileInputStream(PATH_TO_HIBERNATE_PROPERTIES)) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                sessionFactory = new Configuration()
+                        .setProperties(properties)
+                        .addAnnotatedClass(User.class)
+                        .buildSessionFactory();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return sessionFactory;
+    }
+
+    public static void closeSessionFactory() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
+    }
 
     public static Connection getConnection() {
         try (InputStream inputStream = new FileInputStream(PATH_TO_DB_PROPERTIES)) {
