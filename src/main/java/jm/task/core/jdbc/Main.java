@@ -12,7 +12,7 @@ public class Main {
     private static final UserService userService = new UserServiceImpl();
 
     public static void main(String[] args) {
-        // реализуйте алгоритм здесь
+        // реализуйте алгоритм здесь //
 
 //        Создание таблицы User(ов)
         userService.createUsersTable();
