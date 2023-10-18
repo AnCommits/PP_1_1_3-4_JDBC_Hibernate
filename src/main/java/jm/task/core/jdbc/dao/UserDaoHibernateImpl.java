@@ -4,7 +4,6 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
 import java.util.List;
 
@@ -20,25 +19,11 @@ public class UserDaoHibernateImpl implements UserDao {
     public UserDaoHibernateImpl() {
     }
 
-    @Override
-    public void createUsersTable() {
-
-        final String CREATE_TABLE =
-                "CREATE TABLE IF NOT EXISTS " + TABLE_NAME +
-                        "(" +
-                        ID + " BIGINT PRIMARY KEY AUTO_INCREMENT, " +
-                        NAME + " VARCHAR(30), " +
-                        LASTNAME + " VARCHAR(30), " +
-                        AGE + " TINYINT" +
-                        ")";
-
+    private void execute(String sql) {
         Transaction transaction = null;
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-
-            session.createNativeQuery(CREATE_TABLE, User.class);
-//            session.createSQLQuery(CREATE_TABLE).addEntity(User.class);
-
+            session.createNativeQuery(sql, User.class).executeUpdate();
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -49,8 +34,22 @@ public class UserDaoHibernateImpl implements UserDao {
     }
 
     @Override
-    public void dropUsersTable() {
+    public void createUsersTable() {
+        final String CREATE_TABLE =
+                "CREATE TABLE IF NOT EXISTS " + TABLE_NAME +
+                        "(" +
+                        ID + " BIGINT PRIMARY KEY AUTO_INCREMENT, " +
+                        NAME + " VARCHAR(30), " +
+                        LASTNAME + " VARCHAR(30), " +
+                        AGE + " TINYINT" +
+                        ")";
+        execute(CREATE_TABLE);
+    }
 
+    @Override
+    public void dropUsersTable() {
+        final String DELETE_TABLE = String.format("DROP TABLE IF EXISTS %s", TABLE_NAME);
+        execute(DELETE_TABLE);
     }
 
     @Override
@@ -96,21 +95,6 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         final String DELETE_ALL_ENTRIES = String.format("DELETE FROM %s;", TABLE_NAME);
-
-        Transaction transaction = null;
-        try (Session session = Util.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
-            session.createNativeQuery(DELETE_ALL_ENTRIES);
-
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }
-
-
+        execute(DELETE_ALL_ENTRIES);
     }
 }
